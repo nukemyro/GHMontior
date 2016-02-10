@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>update App</title>
+</head>
+<body>
+
+    <div>
+        <h2>Testing</h2>
+        <ul id="updates" />
+    </div>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>   
+    <script src="../scripts/jquery.timeago.js"></script>     
+
+    <script>        
+        jQuery(document).ready(function () {
+            jQuery("time.timeago").timeago();
+        });
+
+        var uri = 'http://localhost:24316/api/all';
+
+        $(document).ready(function () {
+            
+            // Send an AJAX request
+            $.getJSON(uri)
+                .done(function (data) {
+                    // On success, 'data' contains a list of updates.
+                    $.each(data, function (key, item) {
+                        // Add a list item for the update.
+                        $('<li>', { text: formatItem(item) }).appendTo($('#updates'));
+                    });
+                });
+        });
+
+        function formatItem(item) {
+            var time = jQuery.timeago(item.TimeStamp);
+            return 'NODE:' + item.Name
+                + ' CPU LOAD:' + roundToTwo(item.CPU) + "%"
+                + ' RAM LOAD:' + roundToTwo(item.RAM) + "GB"
+                + ' DISK SPACE:' + roundToTwo(item.DISK) + "GB"
+                + ' When:' + time;
+        }
+
+        function roundToTwo(num) {    
+            return +(Math.round(num + "e+2")  + "e-2");
+        }
+
+        function find() {
+            var id = 2;//$('#prodId').val();
+            $.getJSON(uri + '/' + id)
+                .done(function (data) {
+                    $('#update').text(formatItem(data));
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                    $('#update').text('Error: ' + err);
+                });
+        }
+    </script>
+</body>
+</html>
